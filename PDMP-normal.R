@@ -61,6 +61,9 @@ pdmp <- function(tt,x,theta,v,r){
     }
     
   }
+  if (verbose){
+    log_info("turns: {turns}")
+  }
   return(skeleton[1:turns,])
 }
 
