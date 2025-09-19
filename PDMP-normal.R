@@ -16,16 +16,6 @@ n.repeats <- 100
 
 verbose=T
 
-### density functions ----
-f <- function(theta,mu){
-  dnorm(theta,mu)
-}
-
-f.grad_log <- function(theta,mu){
-  -(theta-mu)
-}
-
-
 ### pdmp functions ----
 pdmp.step <- function(x,theta,v,r,delta=0.01){
   t <- 0 
