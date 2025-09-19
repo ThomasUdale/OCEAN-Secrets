@@ -1,5 +1,22 @@
 library(logger)
+set.seed(1)
 
+### Constants ----
+x0 <- 1
+theta0 <- 1
+v0 <- 1
+
+rs <- c(0,1,5,10,20,30)
+true_m1 <- x0
+true_m2 <- x0^2+1
+
+pdmp.time <- 1e3
+n.sample <- 1e5
+n.repeats <- 100
+
+verbose=T
+
+### density functions ----
 f <- function(theta,mu){
   dnorm(theta,mu)
 }
@@ -9,6 +26,7 @@ f.grad_log <- function(theta,mu){
 }
 
 
+# pdmp functions ----
 pdmp.step <- function(x,theta,v,r,delta=0.01){
   t <- 0 
   lambda <- function(v,theta,delta,x,r){
@@ -74,24 +92,21 @@ discretize_pdmp <- function(path,tt,n){
 }
 
 
-set.seed(1)
-n <- 50
+### run simulation ----
 
-rs <- c(0,1,5,10,20,30)
-m <- array(dim=c(length(rs),n,2))
-run.times <- matrix(nrow=n,ncol=length(rs))
-x=1
-true_m1 <- x
-true_m2 <- x^2+1
 
-pdmp.time <- 1e2
-n.sample <- 1e5
-
+m <- array(dim=c(length(rs),n.repeats,2))
+run.times <- matrix(nrow=n.repeats,ncol=length(rs))
 for (r.id in 1:length(rs)){
-  log_info("r: {rs[r.id]}")
-  for (it in 1:n){
+  if (verbose){
+    log_info("r: {rs[r.id]}")
+  }
+  for (it in 1:n.repeats){
+    if (verbose){
+      log_info("iteration: {it}")
+    }
     start.time <- Sys.time()
-    path <- pdmp(tt=pdmp.time,x=x,theta=0,v=1,r=rs[r.id])
+    path <- pdmp(tt=pdmp.time,x=x0,theta=theta0,v=v0,r=rs[r.id])
     end.time <- Sys.time()
     run.times[it,r.id] <- end.time-start.time
 
@@ -101,23 +116,28 @@ for (r.id in 1:length(rs)){
   }
 }
 
+### log output ----
+
 log_info("sampling complete.")
 
-log_info("x: {x}")
-log_info("number of repeats: {n}")
+log_info("x: {x0}")
+log_info("number of repeats: {n.repeats}")
 log_info("pdmp sample time: {pdmp.time}")
 log_info("sample discretization size: {n.sample}")
 log_info("vector of rs used:")
 print(rs)
 log_info("MSE for first moment:")
-mse.m1 <- rowSums((m[,,1]-true_m1)^2)/n
+mse.m1 <- rowSums((m[,,1]-true_m1)^2)/n.repeats
 print(mse.m1)
 log_info("MSE for second moment:")
-mse.m2 <- rowSums((m[,,2]-true_m2)^2)/n
+mse.m2 <- rowSums((m[,,2]-true_m2)^2)/n.repeats
 print(mse.m2)
 log_info("mean run times:")
 mean.run.time <- colMeans(run.times)
 print(mean.run.time)
+
+
+### save results ----
 
 out <- data.frame(
   cbind(
@@ -127,4 +147,4 @@ out <- data.frame(
     mean.run.time
   )
 )
-write.csv(out,"n50t100.csv",row.names = F)
+write.csv(out,glue::glue("./results/n{n.repeats}t{pdmp.time}.csv"),row.names = F)
