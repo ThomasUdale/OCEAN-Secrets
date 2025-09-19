@@ -2,13 +2,13 @@ library(logger)
 set.seed(1)
 
 ### Constants ----
-x0 <- 1
+x <- 1
 theta0 <- 1
 v0 <- 1
 
 rs <- c(0,1,5,10,20,30)
-true_m1 <- x0
-true_m2 <- x0^2+1
+true_m1 <- x
+true_m2 <- x^2+1
 
 pdmp.time <- 1e3
 n.sample <- 1e5
@@ -106,7 +106,7 @@ for (r.id in 1:length(rs)){
       log_info("iteration: {it}")
     }
     start.time <- Sys.time()
-    path <- pdmp(tt=pdmp.time,x=x0,theta=theta0,v=v0,r=rs[r.id])
+    path <- pdmp(tt=pdmp.time,x=x,theta=theta0,v=v0,r=rs[r.id])
     end.time <- Sys.time()
     run.times[it,r.id] <- end.time-start.time
 
@@ -120,7 +120,7 @@ for (r.id in 1:length(rs)){
 
 log_info("sampling complete.")
 
-log_info("x: {x0}")
+log_info("x: {x}")
 log_info("number of repeats: {n.repeats}")
 log_info("pdmp sample time: {pdmp.time}")
 log_info("sample discretization size: {n.sample}")
