@@ -26,7 +26,7 @@ f.grad_log <- function(theta,mu){
 }
 
 
-# pdmp functions ----
+### pdmp functions ----
 pdmp.step <- function(x,theta,v,r,delta=0.01){
   t <- 0 
   lambda <- function(v,theta,delta,x,r){
